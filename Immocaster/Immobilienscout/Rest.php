@@ -623,6 +623,40 @@ class Immocaster_Immobilienscout_Rest extends Immocaster_Immobilienscout
 		$req->unset_parameter('username');
 		return parent::getContent($req,$sSecret);
 	}
+
+    /**
+     * Ein Objekt holen
+     * (Hierfür müssen besondere Berechtigungen bei ImmobilienScout24 beantragt werden.
+     * Bitte informieren Sie sich direkt bei IS24 darüber.)
+     *
+     * @param array $aArgs
+     * @return mixed
+     */
+    private function _getObject($aArgs) {
+
+        $aRequired = array('username','estateid');
+        if(!isset($aArgs['username']))
+        {
+            $aArgs['username'] = $this->_sDefaultUsername;
+        }
+        $oToken = null;
+        $sSecret = null;
+        list($oToken, $sSecret) = $this->getApplicationTokenAndSecret($aArgs['username']);
+        if($oToken === NULL || $sSecret === NULL)
+        {
+            return IMMOCASTER_SDK_LANG_APPLICATION_NOT_CERTIFIED;
+        }
+        $req = $this->doRequest(
+            'offer/v1.0/user/'.$aArgs['username'].'/realestate/'.$aArgs['estateid'],
+            $aArgs,
+            $aRequired,
+            __FUNCTION__,
+            $oToken
+        );
+        $req->unset_parameter('estateid');
+        $req->unset_parameter('username');
+        return parent::getContent($req,$sSecret);
+    }
 	
 	/**
 	 * Objekt zu ImmobilienScout24 exportieren.
@@ -760,6 +794,64 @@ class Immocaster_Immobilienscout_Rest extends Immocaster_Immobilienscout
 			)
 		);
 	}
+
+    /**
+     * Anhang zu einem Objekt bei ImmobilienScout24 ändern.
+     * (Hierfür müssen besondere Berechtigungen bei ImmobilienScout24 beantragt werden.
+     * Bitte informieren Sie sich direkt bei IS24 darüber.)
+     *
+     * @param array $aArgs
+     * @return mixed
+     */
+    private function _changeObjectAttachment($aArgs)
+    {
+        $aRequired = array('username','file','estateid','attachmentid');
+        if(!isset($aArgs['username']))
+        {
+            $aArgs['username'] = $this->_sDefaultUsername;
+        }
+        if(!isset($aArgs['title'])){ $aArgs['title'] = ''; }
+        if(!isset($aArgs['floorplan'])){ $aArgs['floorplan'] = 'false'; }
+        if(!isset($aArgs['titlePicture'])){ $aArgs['titlePicture'] = 'false'; }
+        if(!isset($aArgs['type'])){ $aArgs['type'] = 'Picture'; }
+        $oToken = null;
+        $sSecret = null;
+        list($oToken, $sSecret) = $this->getApplicationTokenAndSecret($aArgs['username']);
+        if($oToken === NULL || $sSecret === NULL)
+        {
+            return IMMOCASTER_SDK_LANG_APPLICATION_NOT_CERTIFIED;
+        }
+        if(!is_file($aArgs['file']))
+        {
+            return sprintf(IMMOCASTER_SDK_LANG_FILE_NOT_FOUND,$aArgs['file']);
+        }
+        $sMimeBoundary = md5(time());
+        $aArgs['request_body'] = parent::createAttachmentBody($sMimeBoundary,$aArgs);
+        $req = $this->doRequest(
+            'offer/v1.0/user/'.$aArgs['username'].'/realestate/'.$aArgs['estateid'].'/attachment/'.$aArgs['attachmentid'],
+            $aArgs,
+            $aRequired,
+            __FUNCTION__,
+            $oToken,
+            'PUT'
+        );
+        $req->unset_parameter('title');
+        $req->unset_parameter('floorplan');
+        $req->unset_parameter('titlePicture');
+        $req->unset_parameter('estateid');
+        $req->unset_parameter('attachmentid');
+        $req->unset_parameter('username');
+        $req->unset_parameter('file');
+        $req->unset_parameter('type');
+        return parent::getContent(
+            $req,
+            $sSecret,
+            array(
+                'Content-Type'=>'multipart/form-data; boundary="'.$sMimeBoundary.'"',
+                'Accept-Encoding' => 'gzip,deflate'
+            )
+        );
+    }
 	
 	/**
 	 * Anhang zu einem Objekt entfernen.
@@ -796,6 +888,41 @@ class Immocaster_Immobilienscout_Rest extends Immocaster_Immobilienscout
 		$req->unset_parameter('username');
 		return parent::getContent($req,$sSecret);
 	}
+
+    /**
+     * EIn Objekt löschen
+     * (Hierfür müssen besondere Berechtigungen bei ImmobilienScout24 beantragt werden.
+     * Bitte informieren Sie sich direkt bei IS24 darüber.)
+     *
+     * @param array $aArgs
+     * @return mixed
+     */
+    private function _deleteObject($aArgs) {
+        $aRequired = array('username','estateid');
+        if(!isset($aArgs['username']))
+        {
+            $aArgs['username'] = $this->_sDefaultUsername;
+        }
+        $oToken = null;
+        $sSecret = null;
+        list($oToken, $sSecret) = $this->getApplicationTokenAndSecret($aArgs['username']);
+        if($oToken === NULL || $sSecret === NULL)
+        {
+            return IMMOCASTER_SDK_LANG_APPLICATION_NOT_CERTIFIED;
+        }
+        $req = $this->doRequest(
+            'offer/v1.0/user/'.$aArgs['username'].'/realestate/'.$aArgs['estateid'],
+            $aArgs,
+            $aRequired,
+            __FUNCTION__,
+            $oToken,
+            'DELETE'
+        );
+        $req->unset_parameter('attachmentid');
+        $req->unset_parameter('estateid');
+        $req->unset_parameter('username');
+        return parent::getContent($req,$sSecret);
+    }
 	
 	/**
 	 * Objekt bei ImmobilienScout24 ändern.
