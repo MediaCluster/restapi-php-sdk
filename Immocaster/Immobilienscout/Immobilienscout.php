@@ -291,7 +291,11 @@ class Immocaster_Immobilienscout
 		$sBody .= 'Content-Transfer-Encoding: binary' . $sBreak;
 		$sBody .= 'Content-Disposition: form-data; name="metadata"; filename="' . $aArgs['file'] . '"' . $sBreak . $sBreak;
 		$sBody .= '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . $sBreak;
-		$sBody .= '<common:attachment xsi:type="common:' . $aArgs['type'] . '" xmlns:common="http://rest.immobilienscout24.de/schema/common/1.0" ';
+		$sBody .= '<common:attachment xsi:type="common:' . $aArgs['type'].'" ';
+        if(isset($aArgs['attachmentid']) && '' != $aArgs['attachmentid']) {
+            $sBody .= 'id="'.$aArgs['attachmentid'].'" ';
+        }
+        $sBody .= 'xmlns:common="http://rest.immobilienscout24.de/schema/common/1.0" ';
 		$sBody .= 'xmlns:ns3="http://rest.immobilienscout24.de/schema/platform/gis/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" ';
 		$sBody .= 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' . $sBreak;
 		$sBody .= '<title>'.$aArgs['title'].'</title>' . $sBreak;
