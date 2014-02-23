@@ -1177,22 +1177,31 @@ class Immocaster_Immobilienscout_Rest extends Immocaster_Immobilienscout
 	{
 		$oToken = NULL;
 		$sSecret = NULL;
-		if(class_exists('Immocaster_Data_Mysql') && $oData = Immocaster_Data_Mysql::getInstance()->getApplicationToken($sUser))
-		{
-			if($oData->ic_key!='')
-			{
-				$oToken = new OAuthToken
-				(
-					$oData->ic_key,
-					$oData->ic_secret
-				);
-				$sSecret = $oData->ic_secret;
-			}
-			else
-			{
-				return null;
-			}
-		}
+
+        $oData = false;
+
+        if(class_exists('Immocaster_Data_Local')) {
+            $oData = Immocaster_Data_Local::getInstance()->getApplicationToken($sUser);
+        }
+
+        if(false === $oData && class_exists('Immocaster_Data_Mysql')) {
+            $oData = Immocaster_Data_Mysql::getInstance()->getApplicationToken($sUser);
+        }
+
+        if($oData->ic_key!='')
+        {
+            $oToken = new OAuthToken
+            (
+                $oData->ic_key,
+                $oData->ic_secret
+            );
+            $sSecret = $oData->ic_secret;
+        }
+        else
+        {
+            return null;
+        }
+
 		return array($oToken, $sSecret);
 	}
 	
