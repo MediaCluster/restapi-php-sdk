@@ -15,7 +15,7 @@ class Immocaster_Data_Local {
 
     private $requestSecret = '';
 
-    public function getInstance($data = array()) {
+    public static function getInstance($data = array()) {
         if (!isset(self::$instance))
         {
             self::$instance = new self($data);
