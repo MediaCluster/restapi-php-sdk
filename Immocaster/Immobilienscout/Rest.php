@@ -154,6 +154,7 @@ class Immocaster_Immobilienscout_Rest extends Immocaster_Immobilienscout
      */
 	private function doRequest($sPath,$aArgs,$aRequired=array(),$sFunctionName,$oToken=null,$postRequest=FALSE)
 	{
+		$sPath .= "?usenewenergysourceenev2014values=true";
 		$requestType = $postRequest ? 'POST' : 'GET';
 		if($postRequest=='PUT'){$requestType='PUT';}
 		if($postRequest=='DELETE'){$requestType='DELETE';}
@@ -1180,9 +1181,9 @@ class Immocaster_Immobilienscout_Rest extends Immocaster_Immobilienscout
 
         $oData = false;
 
-        if(class_exists('Immocaster_Data_Local')) {
+        /*if(class_exists('Immocaster_Data_Local')) {
             $oData = Immocaster_Data_Local::getInstance()->getApplicationToken($sUser);
-        }
+        }*/
 
         if(false === $oData && class_exists('Immocaster_Data_Mysql')) {
             $oData = Immocaster_Data_Mysql::getInstance()->getApplicationToken($sUser);
